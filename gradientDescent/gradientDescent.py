@@ -9,8 +9,8 @@ def gradientDescent(X, y, theta, alpha, num_iters):
     #length of y
     m = y.shape[1]
 
-    #old values of J, the result
-    J_history = []
+    #use J_history to mark the cost
+    J_history = 0
 
     for i in range(1: num_iters):
         thetaOld = theta
