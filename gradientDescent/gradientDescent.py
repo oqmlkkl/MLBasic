@@ -19,4 +19,4 @@ def gradientDescent(X, y, theta, alpha, num_iters):
         theta = theta - alpha * diff.sum() / m
         J_history = computeCost(X, y, theta)
 
-    return theta, J_history
+    return (theta, J_history)
