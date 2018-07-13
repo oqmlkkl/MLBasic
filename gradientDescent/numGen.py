@@ -5,6 +5,7 @@ import numpy as np
 # shape is a tuple, and thata is an array which length == shape[1]
 def gen(shape, theta):
     randX = np.random.rand(shape[0], shape[1]) * 100
-    y = sum(np.transpose(randX * theta))
-    return (randX, y)
+    randThetaZero = np.random.uniform(low=-10, high=10, size=(shape[0], 1))
+    y = sum(np.transpose(randX * theta)) + np.transpose(randThetaZero)
+    return (np.round(randX), np.round(np.transpose(y)))
 
