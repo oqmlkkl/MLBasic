@@ -15,6 +15,10 @@ class LogisticRegression(object):
     def sigmoid(self, z):
         return 1/(1 + np.exp(-z))
 
+    def addIntercept(self, X):
+        intercept = np.ones((X.shape[0], 1))
+        return np.concatenate((intercept, X), axis = 1)
+
     def getH(self, X):
         return self.sigmoid(np.dot(X, self.theta))
 
@@ -36,6 +40,7 @@ class LogisticRegression(object):
 
 
     def fit(self, X, y):
+        X = self.addIntercept(X)
         self.theta = np.ones(X.shape[1])
         for i in range(self.num_iters):
             gradient = self.getGrad(X, y)

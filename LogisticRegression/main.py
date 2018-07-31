@@ -20,9 +20,10 @@ sig = LogisticRegression(0.005, 200)
 sig.fit(X, y)
 
 testX = np.append(x1[281: 300], x2[281:300], axis=0)
+testX = sig.addIntercept(testX)
 predict = sig.predict(testX)
 plt.figure(figsize=(12,8))
-plt.scatter(testX[:,0], testX[:,1], c=predict, alpha=.4)
+plt.scatter(testX[:,1], testX[:,2], c=predict, alpha=.4)
 plt.legend()
 plt.show()
 
