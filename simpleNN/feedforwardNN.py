@@ -1,9 +1,14 @@
 import numpy as np
 
 class feedforwardNN:
-    def __init__(self, num_layers, num_neurons):
-        self.num_layers = num_layers
-        self.num_neurons = num_neurons
+    def __init__(self, num_hidden_layers, neurons):
+        try:
+            self.num_hidden_layers = num_hidden_layers
+            self.neurons = neurons
+            if(num_hidden_layers != len(neurons)):
+                raise ValueError('Cannot continue: neurons input has different length as num_hidden_layers')
+        except Exception as error:
+            print(error)
 
     def setData(self, training_set, validation_set, test_set):
         self.training_set = training_set
@@ -17,5 +22,6 @@ class feedforwardNN:
         z = X * theta.T
         return np.concatenate(np.ones(z.shape[0]).T, self.sigmoid(z))
 
-    def cost():
+    def
 
+    def cost():
