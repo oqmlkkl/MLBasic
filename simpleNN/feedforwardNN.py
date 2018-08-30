@@ -22,11 +22,11 @@ class feedforwardNN:
         self.theta = ()
         for i in range(0, self.num_hidden_layers):
             if i == 0:
-                self.theta += numpy.random.rand(X.shape()[1] + 1, self.neurons[0])
+                self.theta += np.random.rand(X.shape()[1] + 1, self.neurons[0])
             else if i == self.num_hidden_layers - 1:
-                self.theta += numpy.random.rand(self.neurons[i] + 1, y.shape()[1])
+                self.theta += np.random.rand(self.neurons[i] + 1, y.shape()[1])
             else:
-                self.thata += numpy.random.rand(self.neurons[i] + 1, self.neurons[i + 1])
+                self.thata += np.random.rand(self.neurons[i] + 1, self.neurons[i + 1])
         print('theta = ' + self.theta)
 
     def setData(self, training_set, validation_set, test_set):
@@ -41,17 +41,21 @@ class feedforwardNN:
         z = X * theta.T
         return np.concatenate(np.ones(z.shape[0]).T, self.sigmoid(z))
 
-    def get_init_delta(self):
-        delta = ()
-        for i in range(1, self.num_hidden_layers):
+    def get_init_delta(self, X):
+        # init delta for input layer
+        delta = (np.random.rand(1, shape(X)[1]))
+        # init delta for hidden layers
+        for i in range(0, self.num_hidden_layers):
             delta += (np.full((1, self.neurons[i]), 0))
         return delta
 
-    # implement the back propagation algorithm once, the delta_matrix is a passed in parameter
-    def back_propagation(self, X, y, delta_matrix):
+    # implement the back propagation algorithm once,
+    # it returns the delta matrix for the input training example
+    def back_propagation(self, X, y):
         # step1: do the forward propagation to get the delta of output,
         #        and store the activations for back propagation
         activations = ()
+        delta_matrix = self.get_init_delta(X)
         for i in range(0, self.num_hidden_layers + 1):
             if i == 0:
                 activations += (np.concatenate(np.ones(1), X))
@@ -60,7 +64,14 @@ class feedforwardNN:
         #forward propagation, update activations
         for i in range(1, self.num_hidden_layers):
             activations[i] = self.get_activation(activations[i - 1], self.theta[i - 1])
-        # setp2: update delta_matrix
+        # step2: update delta_matrix
+        # update the last delta
+        delta_matrix[len(delta_matrix) - 1] = activations[len(activations)  - 1] - y
+        # according to the last delta, back-propagate to update activations
+        for i in range(2, self.num_hidden_layers):
+            layer = self.num_hidden_layers - i
+            coeff = self.theta[layer].T * delta_matrix[layer + 1]
+            deri = np.dot(activations[layer], (1 - activations[layer]))
+            delta_matrix[layer] = np.dot(coeff, deri)
+        return delta_matrix
 
-
-    def cost():
