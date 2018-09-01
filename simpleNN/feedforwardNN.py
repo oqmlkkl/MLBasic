@@ -6,13 +6,14 @@ class feedforwardNN:
     #num_hidden_layers is an int represents the number of hidden layers in the NN
     #neurons is a list of int which indicates the number of neurons in each hidden
     #        layer of the NN
-    def __init__(self, num_hidden_layers, neurons):
+    def __init__(self, num_hidden_layers, neurons, num_iters):
         try:
             self.num_hidden_layers = num_hidden_layers
             self.neurons = neurons
             if(num_hidden_layers != len(neurons)):
                 raise ValueError('Cannot continue: neurons input has different length as num_hidden_layers')
             self.random_init(3)
+            self.num_iters = num_iters
 
         except Exception as error:
             print(error)
@@ -74,4 +75,11 @@ class feedforwardNN:
             deri = np.dot(activations[layer], (1 - activations[layer]))
             delta_matrix[layer] = np.dot(coeff, deri)
         return delta_matrix
+
+    def train(self, X, y):
+        delta_matrix= self.get_init_delta(X)
+        # num_examples
+        m = X.shape()[1]
+        for i in range(0, m):
+            delta_matrix += self.back_propagation(X.T[i].T, y[i])
 
