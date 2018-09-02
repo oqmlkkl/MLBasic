@@ -1,34 +1,33 @@
 import numpy as np
 import random
+import traceback
+import sys
 
+# This class provides the cost function and the function to calculate the delta
 class feedforwardNN:
 
     #num_hidden_layers is an int represents the number of hidden layers in the NN
     #neurons is a list of int which indicates the number of neurons in each hidden
     #        layer of the NN
-    def __init__(self, num_hidden_layers, neurons, num_iters):
-        try:
-            self.num_hidden_layers = num_hidden_layers
-            self.neurons = neurons
-            if(num_hidden_layers != len(neurons)):
-                raise ValueError('Cannot continue: neurons input has different length as num_hidden_layers')
-            self.random_init(3)
-            self.num_iters = num_iters
+    def __init__(self, num_hidden_layers, neurons, num_iters, X, y):
+        exe_info = sys.exc_info()
+        self.num_hidden_layers = num_hidden_layers
+        self.neurons = neurons
+        self.random_init(3, X, y)
+        self.num_iters = num_iters
 
-        except Exception as error:
-            print(error)
 
     #randomly initialize theta based on symmetry breaking between range:[-epsion, epsilon]
+    # TODO: theta should be unrolled so that fmin_cg could be used.
     def random_init(self, epsilon, X, y):
-        self.theta = ()
+        input_layer_theta = np.random.rand(X.shape[1] + 1, self.neurons)
+        output_layer_theta= np.random.rand(y.shape[1], self.neurons + 1)
         for i in range(0, self.num_hidden_layers):
             if i == 0:
-                self.theta += np.random.rand(X.shape()[1] + 1, self.neurons[0])
-            else if i == self.num_hidden_layers - 1:
-                self.theta += np.random.rand(self.neurons[i] + 1, y.shape()[1])
-            else:
-                self.thata += np.random.rand(self.neurons[i] + 1, self.neurons[i + 1])
-        print('theta = ' + self.theta)
+                self.theta = np.vstack(([input_layer_theta], [np.random.rand(self.neurons + 1, self.neurons)])
+                self.theta = np.vstack((self.theta, [np.random.rand(self.neurons + 1, self.neurons)]))
+        self.theta  = np.vstack(self.theta, [output_layer_theta])
+        self.theta
 
     def setData(self, training_set, validation_set, test_set):
         self.training_set = training_set
@@ -76,6 +75,8 @@ class feedforwardNN:
             delta_matrix[layer] = np.dot(coeff, deri)
         return delta_matrix
 
+    #Here the train function should also in charge of finding an optimize solution
+    # for each Theta, leave this in main function by using fmin_cg in scipy
     def train(self, X, y):
         delta_matrix= self.get_init_delta(X)
         # num_examples
