@@ -15,19 +15,16 @@ class feedforwardNN:
         self.neurons = neurons
         self.random_init(3, X, y)
         self.num_iters = num_iters
+        self.delta = np.zeros(self.neurons * self.num_hidden_layers,)
+        print(self.theta)
 
 
     #randomly initialize theta based on symmetry breaking between range:[-epsion, epsilon]
-    # TODO: theta should be unrolled so that fmin_cg could be used.
     def random_init(self, epsilon, X, y):
-        input_layer_theta = np.random.rand(X.shape[1] + 1, self.neurons)
-        output_layer_theta= np.random.rand(y.shape[1], self.neurons + 1)
-        for i in range(0, self.num_hidden_layers):
-            if i == 0:
-                self.theta = np.vstack(([input_layer_theta], [np.random.rand(self.neurons + 1, self.neurons)])
-                self.theta = np.vstack((self.theta, [np.random.rand(self.neurons + 1, self.neurons)]))
-        self.theta  = np.vstack(self.theta, [output_layer_theta])
-        self.theta
+        theta_num = (X.shape[1] + 1) * self.neurons
+        theta_num += (self.neurons + 1) * self.neurons * (self.num_hidden_layers - 1)
+        theta_num += (self.neurons + 1) * y.shape[1]
+        self.theta = np.random.uniform(-epsilon, epsilon, (1, theta_num))[0]
 
     def setData(self, training_set, validation_set, test_set):
         self.training_set = training_set
@@ -41,16 +38,9 @@ class feedforwardNN:
         z = X * theta.T
         return np.concatenate(np.ones(z.shape[0]).T, self.sigmoid(z))
 
-    def get_init_delta(self, X):
-        # init delta for input layer
-        delta = (np.random.rand(1, shape(X)[1]))
-        # init delta for hidden layers
-        for i in range(0, self.num_hidden_layers):
-            delta += (np.full((1, self.neurons[i]), 0))
-        return delta
-
     # implement the back propagation algorithm once,
     # it returns the delta matrix for the input training example
+    # TODO: rewrite this function to implement the unrolled theta
     def back_propagation(self, X, y):
         # step1: do the forward propagation to get the delta of output,
         #        and store the activations for back propagation
