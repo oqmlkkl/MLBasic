@@ -9,112 +9,93 @@ class feedforwardNN:
     #num_hidden_layers is an int represents the number of hidden layers in the NN
     #neurons is a list of int which indicates the number of neurons in each hidden
     #        layer of the NN
-    def __init__(self, num_hidden_layers, neurons, num_iters, X, y, learning_rate, num_samples):
+    def __init__(self, num_hidden_layers, neurons, training_set, learning_rate):
         exe_info = sys.exc_info()
         self.num_hidden_layers = num_hidden_layers
         self.neurons = neurons
-        self.random_init(1, X, y)
-        self.num_iters = num_iters
-        self.delta_matrix = self.get_init_delta()
+        self.training_set = training_set
+        self.weights = self.init_weights(1)
+        self.biases = self.init_biases(1)
+        self.num_samples = len(training_set)
         self.learning_rate = learning_rate
-        self.num_samples = num_samples
-        print(self.theta)
-
-    def update_theta(self, detla_matrix, x_dim, y_dim):
-        input_theta = self.theta[0, (x_dim + 1) * self.neurons].reshape(self.neurons, x_dim + 1)
-        hidden_layer_theta = self.theta[(x_dim + 1) * self.neurons, (self.neurons + 1) * self.neurons * (self.num_hidden_layers - 1)].reshape(self.num_hidden_layers - 1, self.neurons, self.neurons + 1)
-        output_theta = self.theta[-(self.neurons + 1) * y_dim].reshape(y_dim, self.neurons + 1)
 
     #randomly initialize theta based on symmetry breaking between range:[-epsion, epsilon]
-    def random_init(self, epsilon, X, y):
-        theta_num = (X.shape[1] + 1) * self.neurons
-        theta_num += (self.neurons + 1) * self.neurons * (self.num_hidden_layers - 1)
-        theta_num += (self.neurons + 1) * y.shape[1]
-        self.theta = np.random.uniform(-epsilon, epsilon, (1, theta_num))[0]
+    def init_weights(self, epsilon):
+        input_size = self.training_set[0][0].shape[0]
+        output_size = self.training_set[0][1].shape[0]
+        size = [input_size]
+        size.extend([self.neurons] * self.num_hidden_layers)
+        size.append(output_size)
+        return [np.random.randn(out_neurons, in_neurons) for in_neurons, out_neurons in zip(size[:-1], size[1:])]
 
-    def get_init_delta(self):
-        return np.zeros((self.num_hidden_layers, self.neurons + 1))
-
-    def setData(self, training_set, validation_set, test_set):
-        self.training_set = training_set
-        self.validation_set = validation_set
-        self.test_set = test_set
+    def init_biases(self, epsilon):
+        input_size = self.training_set[0][0].shape[0]
+        output_size = self.training_set[0][1].shape[0]
+        size = [input_size]
+        size.extend([self.neurons] * self.num_hidden_layers)
+        size.append(output_size)
+        return [np.random.randn(neuron, 1) for neuron in size[1:]]
+     #==== end of init methods ==
 
     def sigmoid(self, z):
-        return 1/(1 + np.exp(-z))
+        return 1.0 / (1.0 + np.exp(-z))
 
-    def get_activations(self, X, theta):
-        z = np.matmul(X,theta.T)
-        return np.hstack(([1], self.sigmoid(z)))
+    def get_output(self, activation):
+        for bias, weight in zip(self.biases, self.weights):
+            activation = self.sigmoid(np.dot(weight, activation) + bias)
+        return activation
 
-
-    def update_theta(self, theta_mat, theta_change):
-        for i in range(0, theta_mat.shape[0]):
-            theta_mat[i] += theta_change[i] / self.num_samples
-        return theta_mat
+    def update_weights(self, batch):
+        delta_bias = [np.zeros(bias.shape) for bias in self.biases]
+        delta_weight = [np.zeros(weight.shape) for weight in self.weights]
+        for train_x, train_y in batch:
+            nabla_delta_bias, nabla_delta_weight = self.back_propagation(train_x, train_y)
+            delta_bias = [ db + ndb for db, ndb in zip(delta_bias, nabla_delta_bias) ]
+            delta_weight = [ dw + ndw for dw, ndw in zip(delta_weight, nabla_delta_weight) ]
+        self.weights = [w - (self.learning_rate / len(batch)) * dw for w, dw in zip(self.weights, delta_weight)]
+        self.biases  = [b - (self.learning_rate / len(batch)) * db for b, db in zip(self.biases, delta_bias)]
 
     # implement the back propagation algorithm once,
     # it returns the delta matrix for the input training example
     def back_propagation(self, X, y):
-        # define variables
+        # initialize variables:
+        nabla_delta_bias = [np.zeros(bias.shape) for bias in self.biases]
+        nabla_delta_weights = [np.zeros(weight.shape) for weight in self.weights]
         #  - steps
-        input_step = (X.shape[0] + 1) * self.neurons
-        layer_step = (self.neurons + 1) * self.neurons
-        output_step = (self.neurons + 1) * y.shape[0]
-        # - input, activations and output
-        nn_input = np.hstack(([1], X))
-        activations = np.zeros(((self.neurons + 1) * self.num_hidden_layers))
-        output = np.zeros(y.shape[0],)
-
         # step1: do the forward propagation to get the delta of output,
-        #        and store the activations for back propagation
-        for i in range(0, self.num_hidden_layers + 1):
-            # For each if, get cur_theta by slicing self.theta,
-            #   and get input from last layer by slicing activations
-            if i == 0:
-                cur_theta = self.theta[0: input_step].reshape((self.neurons, X.shape[0] + 1))
-                activations[0: self.neurons + 1] = self.get_activations(nn_input, cur_theta)
-            elif i == self.num_hidden_layers:
-                cur_theta = self.theta[-output_step : ].reshape((y.shape[0], self.neurons + 1))
-                prev_activation = activations[- self.neurons - 1:]
-                output = self.get_activations(prev_activation, cur_theta)[1:]
-            else:
-                cur_theta = self.theta[input_step + (i - 1) * layer_step : input_step + i * layer_step].reshape((self.neurons, self.neurons + 1))
-                prev_activation = activations[(self.neurons + 1) * (i - 1): (self.neurons + 1) * i]
-                activations[(self.neurons + 1) * i: (self.neurons + 1) * (i + 1)] = self.get_activations(prev_activation, cur_theta)
+        #        and store the activations and Z for back propagation
+        activation = X
+        activations = [X]
+        z_list = []
+        for bias, weight in zip(self.biases, self.weights):
+            z = np.dot(weight, activation) + bias
+            activation = self.sigmoid(z)
+            z_list.append(z)
+            activations.append(activation)
+        # step2: back propagate errors
+        #  First get the delta for the last layer
+        delta_output = (activations[-1] - y)
+        delta = delta_output * (self.sigmoid(z_list[-1]) * (1 - self.sigmoid(z_list[-1])))
+        nabla_delta_bias[-1] = delta
+        nabla_delta_weights[-1] = np.dot(delta, activations[-2].T)
+        for i in xrange(2, self.num_hidden_layers + 2):
+            z = z_list[-i]
+            deri = self.sigmoid(z) * (1.0 - self.sigmoid(z))
+            delta = np.dot(self.weights[-i + 1].T, delta) * deri
+            nabla_delta_bias[-i] = delta
+            nabla_delta_weights[-i] = np.dot(delta, activations[-i - 1].T)
+        return(nabla_delta_bias, nabla_delta_weights)
 
-        print('output = ')
-        print(output)
-        print(' y = ')
-        print(y)
+    def evaluate(self, test_set):
+        test_results = [(np.argmax(self.get_output(x)), y) for x, y in test_set]
+        return sum(int(x == y) for (x, y) in test_results)
 
-        # step2: update self.delta_matrix, back propagate errors
-        delta_output = output - y
-        delta_input = np.zeros(X.shape[0],)
-        for i in range(self.num_hidden_layers, 0, -1):
-            # the last theta set
-            if i == self.num_hidden_layers:
-                cur_theta = self.theta[-output_step : ].reshape((y.shape[0], self.neurons + 1))
-                cur_activation = activations[-self.neurons - 1:]
-                delta_next = delta_output
-                self.delta_matrix[i - 1] = np.matmul(cur_theta.T, delta_next) * cur_activation * (1 - cur_activation)
-                #update theta based on self.delta_matrix
-                grad = self.delta_matrix[i - 1] * cur_activation * self.learning_rate
-                self.theta[-output_step:] = self.update_theta(cur_theta, grad).reshape((1, output_step))
-            else:
-                start_index = -layer_step * (self.num_hidden_layers - i + 1) - output_step
-                end_index = -layer_step * (self.num_hidden_layers - i) - output_step
-                cur_theta = self.theta[start_index : end_index].reshape((self.neurons, self.neurons + 1))
-                cur_activation = activations[(self.neurons + 1) * (i - 1): (self.neurons + 1) * i]
-                delta_next = self.delta_matrix[i]
-                self.delta_matrix[i - 1][1:] =  np.matmul(delta_next, cur_theta.T) * cur_activation[1:] * (1 - cur_activation)[1:]
-                #update delta
-                grad = self.delta_matrix[i - 1] * cur_activation * self.learning_rate
-                self.theta[start_index : end_index] = self.update_theta(cur_theta, grad).reshape((1, layer_step))
-
-    #Here the train function should also in charge of finding an optimize solution
-    # for each Theta, leave this in main function by using fmin_cg in scipy
-    def train(self, X, y):
-        # num_examples
-        self.back_propagation(X, y)
+    #==== end of  back-propagation ===
+    def stochastic_gradient_descent(self, num_iter, batch_size, testset = None):
+        for i in xrange(num_iter):
+            random.shuffle(self.training_set)
+            for j in xrange(0, self.num_samples, batch_size):
+                self.update_weights(self.training_set[j : batch_size + j])
+            if(testset != None):
+                print "> epoch {0}: {1} / {2}".format(i, self.evaluate(testset), len(testset))
 

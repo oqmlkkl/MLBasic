@@ -2,8 +2,7 @@ from feedforwardNN import feedforwardNN
 from loadData import data_set
 import pdb
 data_set = data_set()
-X, y = data_set.get_trainset()
-neurons = 10
-network = feedforwardNN(10, neurons, 10, X, y, 0.05, X.shape[0])
-for i in range(X.shape[0]):
-    network.train(X[i], y[i])
+neurons = 30
+network = feedforwardNN(1, neurons, data_set.get_trainset(), 30)
+print(data_set.get_trainset()[0][0].shape)
+network.stochastic_gradient_descent(30, 30, data_set.get_testset())
