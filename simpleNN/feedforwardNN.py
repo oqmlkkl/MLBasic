@@ -26,7 +26,7 @@ class feedforwardNN:
         size = [input_size]
         size.extend([self.neurons] * self.num_hidden_layers)
         size.append(output_size)
-        return [np.random.randn(out_neurons, in_neurons) for in_neurons, out_neurons in zip(size[:-1], size[1:])]
+        return [np.random.randn(out_neurons, in_neurons) / np.sqrt(in_neurons) for in_neurons, out_neurons in zip(size[:-1], size[1:])]
 
     def init_biases(self, epsilon):
         input_size = self.training_set[0][0].shape[0]
@@ -45,14 +45,14 @@ class feedforwardNN:
             activation = self.sigmoid(np.dot(weight, activation) + bias)
         return activation
 
-    def update_weights(self, batch):
+    def update_weights(self, batch, reg):
         delta_bias = [np.zeros(bias.shape) for bias in self.biases]
         delta_weight = [np.zeros(weight.shape) for weight in self.weights]
         for train_x, train_y in batch:
             nabla_delta_bias, nabla_delta_weight = self.back_propagation(train_x, train_y)
             delta_bias = [ db + ndb for db, ndb in zip(delta_bias, nabla_delta_bias) ]
             delta_weight = [ dw + ndw for dw, ndw in zip(delta_weight, nabla_delta_weight) ]
-        self.weights = [w - (self.learning_rate / len(batch)) * dw for w, dw in zip(self.weights, delta_weight)]
+        self.weights = [(1 - self.learning_rate * reg / len(batch)) * w  - self.learning_rate / len(batch) * dw for w, dw in zip(self.weights, delta_weight) ]
         self.biases  = [b - (self.learning_rate / len(batch)) * db for b, db in zip(self.biases, delta_bias)]
 
     # implement the back propagation algorithm once,
@@ -75,7 +75,7 @@ class feedforwardNN:
         # step2: back propagate errors
         #  First get the delta for the last layer
         delta_output = (activations[-1] - y)
-        delta = delta_output * (self.sigmoid(z_list[-1]) * (1 - self.sigmoid(z_list[-1])))
+        delta = delta_output #* (self.sigmoid(z_list[-1]) * (1 - self.sigmoid(z_list[-1]))) <- commented to swtich to cross-entropy
         nabla_delta_bias[-1] = delta
         nabla_delta_weights[-1] = np.dot(delta, activations[-2].T)
         for i in xrange(2, self.num_hidden_layers + 2):
@@ -95,7 +95,7 @@ class feedforwardNN:
         for i in xrange(num_iter):
             random.shuffle(self.training_set)
             for j in xrange(0, self.num_samples, batch_size):
-                self.update_weights(self.training_set[j : batch_size + j])
+                self.update_weights(self.training_set[j : batch_size + j], 5.0 / self.num_samples)
             if(testset != None):
                 print "> epoch {0}: {1} / {2}".format(i, self.evaluate(testset), len(testset))
 
