@@ -5,7 +5,7 @@ class data_set:
 
     def __init__(self):
         #load mnist dataset from my own mnist directory
-        f = gzip.open('./../../../dataset/mnist/mnist.pkl.gz', 'rb')
+        f = gzip.open('./mnist.pkl.gz', 'rb')
         self.train_set, self.valid_set, self.test_set = cPickle.load(f)
         f.close()
         #print(train_set[0].shape)
@@ -18,8 +18,6 @@ class data_set:
         for i in range(0, len(train_y)):
             train_y_vector[i][train_y[i]] = 1
         tr = [(x.reshape(784, 1), y.reshape(10, 1)) for x, y in zip(train_x, train_y_vector)]
-        print "{0} {1}".format(tr[0][1], train_y[0])
-        print "{0} {1}".format(tr[1][1], train_y[1])
         return tr
 
     def get_testset(self):

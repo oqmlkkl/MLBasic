@@ -16,10 +16,11 @@ class feedforwardNN:
         self.training_set = training_set
         self.weights = self.init_weights(1)
         self.biases = self.init_biases(1)
+        print('Bias and weight initialization complete.')
         self.num_samples = len(training_set)
         self.learning_rate = learning_rate
 
-    #randomly initialize theta based on symmetry breaking between range:[-epsion, epsilon]
+    #initial weights
     def init_weights(self, epsilon):
         input_size = self.training_set[0][0].shape[0]
         output_size = self.training_set[0][1].shape[0]
@@ -28,6 +29,7 @@ class feedforwardNN:
         size.append(output_size)
         return [np.random.randn(out_neurons, in_neurons) / np.sqrt(in_neurons) for in_neurons, out_neurons in zip(size[:-1], size[1:])]
 
+    #initialize biases
     def init_biases(self, epsilon):
         input_size = self.training_set[0][0].shape[0]
         output_size = self.training_set[0][1].shape[0]
@@ -37,14 +39,19 @@ class feedforwardNN:
         return [np.random.randn(neuron, 1) for neuron in size[1:]]
      #==== end of init methods ==
 
+    # using sigmoid function to pass activations.
     def sigmoid(self, z):
         return 1.0 / (1.0 + np.exp(-z))
 
+    # gets the output of the neural network given activation is the input layer
     def get_output(self, activation):
         for bias, weight in zip(self.biases, self.weights):
             activation = self.sigmoid(np.dot(weight, activation) + bias)
         return activation
 
+    """Update weights according to nabla given by back propagation.
+       While reg is the regression parameter.
+       """
     def update_weights(self, batch, reg):
         delta_bias = [np.zeros(bias.shape) for bias in self.biases]
         delta_weight = [np.zeros(weight.shape) for weight in self.weights]
@@ -76,6 +83,8 @@ class feedforwardNN:
         #  First get the delta for the last layer
         delta_output = (activations[-1] - y)
         delta = delta_output #* (self.sigmoid(z_list[-1]) * (1 - self.sigmoid(z_list[-1]))) <- commented to swtich to cross-entropy
+                             # we can tell from here, the delta_output is not depends on the derivation of cost function anymore,
+                             # which explains why the cross-entropy cost function helps prevent slow down of training.
         nabla_delta_bias[-1] = delta
         nabla_delta_weights[-1] = np.dot(delta, activations[-2].T)
         for i in xrange(2, self.num_hidden_layers + 2):
@@ -91,6 +100,7 @@ class feedforwardNN:
         return sum(int(x == y) for (x, y) in test_results)
 
     #==== end of  back-propagation ===
+    """The main function to be called to perform training"""
     def stochastic_gradient_descent(self, num_iter, batch_size, testset = None):
         for i in xrange(num_iter):
             random.shuffle(self.training_set)
