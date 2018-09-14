@@ -1,4 +1,5 @@
 from sklearn import datasets
+import matplotlib.pyplot as plt
 """
 path = './../../../dataset/enron/enron_mail_20150507.tar.gz'
 with tarfile.open(path) as archive:
@@ -9,3 +10,6 @@ with tarfile.open(path) as archive:
 
 iris = datasets.load_iris()
 X = iris.data[:, :2]
+y = iris.target
+plt.scatter(X[:,0], X[:,1])
+plt.show()
