@@ -11,6 +11,9 @@ class k_means():
     def __init__(self, k, X, y, num_iters, is_noisy):
         self.is_noisy = is_noisy
         self.random_initialize(k, X)
+        self.num_iters = num_iters
+        # Convert each X into a tuple where the second element is the class
+        self.X = [(x, 0) for x in X]
         if(is_noisy):
             print('Init completed.')
 
@@ -23,3 +26,16 @@ class k_means():
         if(self.is_noisy):
             print('Randomly Selected Centroids: ')
             print(self.centroids)
+
+    def classify(self):
+        for i in range(self.num_iters):
+            for x in self.X:
+                distances = [ euclid_distance(x[0], centroid) in self.centroids ]
+                x[1] = distances.index(min(distances))
+            self.update_centroids()
+            if(self.is_noisy):
+                print "> epoch {0} completed, new centroids: {1}".format(i, self.centroids)
+
+    def udpate_centroids(self):
+        #TODO
+
