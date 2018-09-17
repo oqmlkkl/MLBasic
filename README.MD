@@ -1,8 +1,11 @@
-- Gradient Descent:
-    Most basic type of linear regression, using gradient descent to learn.
-- Logistic Regression:
-    A simple binary classification algorithm..
-- SimpleNN:
-    A simple neural network using cross-entropy cost function to do classification on mnist dataset, correctness is around 96%
-- KMeans:
-    Simply implemented the KMeans algorithm to do a unsupervised learning, correctness: implementing...
+## Gradient Descent:
+    - Most basic type of linear regression, using gradient descent to learn.
+## Logistic Regression:
+    - A simple binary classification algorithm..
+    - correctness: over 95%
+## SimpleNN:
+    - A simple neural network using cross-entropy cost function to do classification on mnist dataset
+    - Around 96% under given parameters
+## KMeans:
+    - Simply implemented the KMeans algorithm to do a unsupervised learning
+    - correctness: implementing...
