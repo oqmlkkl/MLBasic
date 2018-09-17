@@ -8,4 +8,4 @@
    - correctness: Around 96% under given parameters
 ## KMeans:
    - Simply implemented the KMeans algorithm to do a unsupervised learning
-   - correctness: ![Image](./KMeans/k=3.png)
+   - correctness: ![Image](./KMeans/k=3.png). I would say this is Okay, but not perfect, I will keep trying to figure out why it's not optimized.
