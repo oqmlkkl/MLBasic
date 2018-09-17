@@ -1,3 +1,5 @@
+# MLBasic
+This is a repository which marks down my step on self-teaching machine learning techniques, algorithms are implemented based on my interests and readings. I will try to update this repo in a frequency of 1 to 2 updates per 2 days. Welcome if you have any suggestions on my code.
 ## Gradient Descent:
    - Most basic type of linear regression, using gradient descent to learn.
 ## Logistic Regression:
