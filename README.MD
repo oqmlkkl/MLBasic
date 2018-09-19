@@ -13,6 +13,7 @@ This is a repository which marks down my step on self-teaching machine learning 
    - correctness: ![Image](./KMeans/k=3.png). I would say this is Okay, but not perfect, I will keep trying to figure out why it's not optimized.
 ## Naive Bayes:
    - Trying to implement a naive bayes classifier to classify enron mails examples.
-   [*] data cleaned
-   [ ] main body implemented
+   - [x] raw mail -> csv
+   - [ ] data analyzed
+   - [ ] main body implemented
    - correctness: haven't implemented
