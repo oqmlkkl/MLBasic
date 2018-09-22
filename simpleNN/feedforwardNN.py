@@ -57,8 +57,10 @@ class feedforwardNN:
         delta_weight = [np.zeros(weight.shape) for weight in self.weights]
         for train_x, train_y in batch:
             nabla_delta_bias, nabla_delta_weight = self.back_propagation(train_x, train_y)
+            # accumulates bias for batch gradient descent.
             delta_bias = [ db + ndb for db, ndb in zip(delta_bias, nabla_delta_bias) ]
             delta_weight = [ dw + ndw for dw, ndw in zip(delta_weight, nabla_delta_weight) ]
+            # update the weights by calculating the derivative of cost function
         self.weights = [(1 - self.learning_rate * reg / len(batch)) * w  - self.learning_rate / len(batch) * dw for w, dw in zip(self.weights, delta_weight) ]
         self.biases  = [b - (self.learning_rate / len(batch)) * db for b, db in zip(self.biases, delta_bias)]
 
