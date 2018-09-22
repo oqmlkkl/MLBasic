@@ -22,6 +22,8 @@ class k_means():
         if(is_noisy):
             print('Init completed.')
 
+    """This function randomly choose k numbers of samples as the original center.
+    """
     def random_initialize(self, k, X):
         #do the random_initialization to randomly select centroids
         rand_indexes = np.arange(k * 2)
@@ -31,7 +33,10 @@ class k_means():
         if(self.is_noisy):
             print('Randomly Selected Centroids: ')
             print(self.centroids)
-
+    """
+    The classify step, where it's updated by choosing the minimun distance to the
+    center as it's cluster.
+    """
     def classify(self):
         for i in range(self.num_iters):
             self.clusters = [[] for i in range(0, len(self.centroids))]
@@ -47,7 +52,9 @@ class k_means():
                     print("Checking tolerance ...")
                 if(self.check_tolerance(old_centroids)):
                     break
-
+    """
+    Turn the numpy array into string for print.
+    """
     def centroids_toString(self):
         string_centroids = []
         for centroid in self.centroids:
@@ -69,7 +76,10 @@ class k_means():
         for i in range(len(self.clusters)):
             cur_cluster = self.clusters[i]
             self.centroids[i] = np.average(cur_cluster, axis = 0)
-
+    """
+    Determine when to stop if tolerance is set, it's determined by the updated distance
+    between old centroid and the latest one.
+    """
     def check_tolerance(self, old_centroids):
         isOptimal = False
         for i in range(len(self.centroids)):
