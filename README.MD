@@ -14,6 +14,6 @@ This is a repository which marks down my step on self-teaching machine learning 
 ## Naive Bayes:
    - Trying to implement a naive bayes classifier to classify enron mails examples.
    - [x] raw mail -> csv
-   - [ ] data analyzed
+   - [ ] data analyzed (Seems require knowledge of NLP, I will do research for a period of time.)
    - [ ] main body implemented
    - correctness: haven't implemented
